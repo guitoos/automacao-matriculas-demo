@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 24px; }
+    h1 { font-size: 20px; margin: 0 0 16px; }
+    .cards { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .card { background: #1e293b; border-radius: 8px; padding: 16px; min-width: 160px; }
+    .card b { display: block; font-size: 28px; }
+    table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+    th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 13px; }
+    th { color: #94a3b8; font-weight: 600; }
+    .erro { color: #f87171; }
+  </style>
+</head>
+<body>
+  <h1>Painel de Matrículas</h1>
+  <div class="cards">
+    <div class="card">Alunos processados<b id="total">-</b></div>
+    <div class="card">Erros pendentes<b id="erros" class="erro">-</b></div>
+  </div>
+  <h2>Pendências</h2>
+  <table><thead><tr><th>Data</th><th>RA</th><th>Aluno</th><th>Etapa</th><th>Erro</th></tr></thead><tbody id="tabErros"></tbody></table>
+  <h2>Processados</h2>
+  <table><thead><tr><th>Data</th><th>RA</th><th>Aluno</th><th>Turma</th><th>ClassApp</th><th>Vestibulare</th><th>Workspace</th></tr></thead><tbody id="tabOk"></tbody></table>
+  <script>
+    function linhas(dados, colunas) {
+      return dados.map(l => '<tr>' + colunas.map(i => '<td>' + String(l[i]).replace(/</g, '&lt;') + '</td>').join('') + '</tr>').join('');
+    }
+    google.script.run.withSuccessHandler(function (d) {
+      var pendentes = d.erros.filter(function (l) { return l[5] === 'PENDENTE'; });
+      document.getElementById('total').textContent = d.processados.length;
+      document.getElementById('erros').textContent = pendentes.length;
+      document.getElementById('tabErros').innerHTML = linhas(pendentes, [0, 1, 2, 3, 4]);
+      document.getElementById('tabOk').innerHTML = linhas(d.processados, [0, 1, 2, 3, 4, 5, 6]);
+    }).obterDadosPainel();
+  </script>
+</body>
+</html>
